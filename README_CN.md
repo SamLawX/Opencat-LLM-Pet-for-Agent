@@ -148,5 +148,8 @@ opencat_service/
 ## 🤖 Agent 使用手册
 AI 助手请参照 [**AGENT_GUIDE.md**](./AGENT_GUIDE.md) 获取行为准则及详细工具说明。
 
+## 🤖 AI 使用声明
+本项目的大部分代码和文档均由 AI（大语言模型）辅助生成。人类开发者负责整体架构设计、功能规划和迭代审查，AI 负责大部分具体实现与文档撰写。
+
 ## 📜 许可证
 MIT License

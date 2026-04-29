@@ -150,5 +150,8 @@ opencat_service/
 ## 🤖 Agent Guide
 AI Agents should refer to [**AGENT_GUIDE.md**](./AGENT_GUIDE.md) for behavioral rules and detailed tool documentation.
 
+## 🤖 AI Disclosure
+The majority of the code and documentation in this project was generated with the assistance of AI (Large Language Models). The human developer provided the overall architecture design, feature planning, and iterative review, while AI handled most of the implementation and writing.
+
 ## 📜 License
 MIT License
