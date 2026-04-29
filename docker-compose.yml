@@ -1,0 +1,17 @@
+services:
+  cybercat-backend:
+    build: .
+    container_name: cybercat-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/config.json:/app/config.json
+      - ./backend/pet_state.json:/app/pet_state.json
+      - ./backend/service.log:/app/service.log
+    environment:
+      - TICK_INTERVAL=30
+      - PORT=8000
+    restart: always
+
+# Use Docker to ensure the backend process is persistent and cross-platform.
+# Run with: docker-compose up -d
