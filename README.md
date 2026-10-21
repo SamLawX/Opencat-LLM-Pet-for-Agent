@@ -28,8 +28,8 @@ Unlike traditional virtual pets driven by boring numerical values, **OpenCat** i
 ```mermaid
 flowchart TD
     AG["AI Agent\n(Claude, Cursor, etc.)"] <-->|stdio| MCP["MCP Server\n(server.py)"]
-    MCP <-->|HTTP API\nPort 9999| BE["Python Backend\n(main.py)"]
-    CLIENT[Any Client] <-->|HTTP / WebSocket\nPort 9999| BE
+    MCP <-->|HTTP API\n9999 local / 8000 Docker| BE["Python Backend\n(main.py)"]
+    CLIENT[Any Client] <-->|HTTP / WebSocket\n9999 local / 8000 Docker| BE
 ```
 
 ### Components
@@ -60,13 +60,15 @@ Run **one** of the following commands for your platform:
   bash setup/run_macos.sh
   ```
 
-*(After startup, the backend service will be available on port `9999`)*
+The setup scripts start the backend on port `9999`. On the same machine, use `http://127.0.0.1:9999` as the backend URL. Running `backend/main.py` directly also defaults to port `9999` unless you pass `--port`.
 
 ### Docker Deployment
 
 ```bash
 docker-compose up -d
 ```
+
+The bundled `docker-compose.yml` runs the backend on container port `8000` and publishes it on host port `8000` (`8000:8000`). From the host, use `http://127.0.0.1:8000`. When your AI Agent connects to this Docker deployment, set `OPENCAT_BACKEND_URL` to `http://127.0.0.1:8000` as described below.
 
 > [!IMPORTANT]
 > **Configure your LLM API Key**:
@@ -82,18 +84,32 @@ Add the MCP server to your Agent's configuration file (e.g. `claude_desktop_conf
   "mcpServers": {
     "opencat": {
       "command": "python",
-      "args": ["C:/PATH/TO/opencat_service/mcp_server/server.py"]
+      "args": ["C:/PATH/TO/opencat_service/mcp_server/server.py"],
+      "env": {
+        "OPENCAT_BACKEND_URL": "http://127.0.0.1:9999"
+      }
     }
   }
 }
 ```
+The example above connects to the local backend started by the setup scripts. For the bundled Docker deployment on the same machine, change `OPENCAT_BACKEND_URL` to `http://127.0.0.1:8000`. If you use another host or port, set this variable to the backend URL reachable from the MCP server. When omitted, it defaults to `http://127.0.0.1:9999`.
+
+The default MCP transport is `stdio`; it does not need a listening TCP port. `OPENCAT_BACKEND_URL` specifies the HTTP backend that the MCP server connects to.
+
 *Note: If you are using a virtual environment, point `command` to the full path of `.venv/Scripts/python.exe` (Windows) or `.venv/bin/python` (Linux/macOS).*
 
 ---
 
 ## 📡 REST API Reference
 
-**Base URL**: `http://127.0.0.1:9999`
+Use the base URL for your deployment:
+
+| Deployment | Base URL on the same machine |
+| :--- | :--- |
+| Setup scripts or direct Python startup (default) | `http://127.0.0.1:9999` |
+| Bundled Docker Compose configuration | `http://127.0.0.1:8000` |
+
+If you change the backend port or Docker host-port mapping, update the base URL and `OPENCAT_BACKEND_URL` accordingly. All endpoints below are relative to that base URL.
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |

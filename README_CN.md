@@ -26,8 +26,8 @@ Agent 通过 MCP 工具与本后端交互，执行喂食、喝水、治疗等操
 ```mermaid
 flowchart TD
     AG["AI Agent\n(Claude, Cursor, etc.)"] <-->|stdio| MCP["MCP Server\n(server.py)"]
-    MCP <-->|HTTP API\nPort 9999| BE["Python Backend\n(main.py)"]
-    CLIENT[Any Client] <-->|HTTP / WebSocket\nPort 9999| BE
+    MCP <-->|HTTP API\n本机 9999 / Docker 8000| BE["Python Backend\n(main.py)"]
+    CLIENT[Any Client] <-->|HTTP / WebSocket\n本机 9999 / Docker 8000| BE
 ```
 
 ### 组件说明
@@ -59,13 +59,15 @@ flowchart TD
   bash setup/run_macos.sh
   ```
 
-*(启动后，后端服务将常驻在 `9999` 端口)*
+一键启动脚本使用 `9999` 端口。在同一台机器上，请使用 `http://127.0.0.1:9999` 连接后端。直接运行 `backend/main.py` 时也默认使用 `9999`，可通过 `--port` 指定其他端口。
 
 ### Docker 部署
 
 ```bash
 docker-compose up -d
 ```
+
+仓库中的 `docker-compose.yml` 使用容器端口 `8000`，并映射到宿主机端口 `8000`（`8000:8000`）。在宿主机上，请使用 `http://127.0.0.1:8000` 连接。AI Agent 接入此 Docker 部署时，需要按下文说明将 `OPENCAT_BACKEND_URL` 设置为 `http://127.0.0.1:8000`。
 
 > [!IMPORTANT]
 > **配置 LLM API Key**: 
@@ -81,18 +83,32 @@ docker-compose up -d
   "mcpServers": {
     "opencat": {
       "command": "python",
-      "args": ["C:/PATH/TO/opencat_service/mcp_server/server.py"]
+      "args": ["C:/PATH/TO/opencat_service/mcp_server/server.py"],
+      "env": {
+        "OPENCAT_BACKEND_URL": "http://127.0.0.1:9999"
+      }
     }
   }
 }
 ```
+以上示例连接一键启动脚本运行的本机后端。如果使用同一台机器上的 Docker 部署，请将 `OPENCAT_BACKEND_URL` 改为 `http://127.0.0.1:8000`。如果更改了主机或端口，请填写 MCP 服务器实际可访问的后端地址。未设置此变量时，默认地址为 `http://127.0.0.1:9999`。
+
+MCP 默认使用 `stdio` 传输，不需要监听 TCP 端口；`OPENCAT_BACKEND_URL` 指定的是 MCP 服务器连接的 HTTP 后端地址。
+
 *注意：如果您使用了虚拟环境，请将 `command` 指向 `.venv/Scripts/python.exe` 的完整路径。*
 
 ---
 
 ## 📡 REST API 参考
 
-**Base URL**: `http://127.0.0.1:9999`
+请根据部署方式选择基础地址：
+
+| 部署方式 | 在同一台机器上使用的基础地址 |
+| :--- | :--- |
+| 一键启动脚本或直接运行 Python（默认配置） | `http://127.0.0.1:9999` |
+| 仓库中的 Docker Compose 配置 | `http://127.0.0.1:8000` |
+
+如果修改了后端端口或 Docker 宿主机端口映射，请同步更新基础地址及 `OPENCAT_BACKEND_URL`。下列端点均相对于所选基础地址。
 
 | 方法 | 端点 | 说明 |
 | :--- | :--- | :--- |
