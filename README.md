@@ -154,4 +154,4 @@ AI Agents should refer to [**AGENT_GUIDE.md**](./AGENT_GUIDE.md) for behavioral 
 The majority of the code and documentation in this project was generated with the assistance of AI (Large Language Models). The human developer provided the overall architecture design, feature planning, and iterative review, while AI handled most of the implementation and writing.
 
 ## 📜 License
-MIT License
+This project is released under [The Unlicense](./LICENSE).
